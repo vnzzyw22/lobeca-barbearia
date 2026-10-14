@@ -242,7 +242,7 @@ export function PlansSection() {
           tabIndex={0}
           onKeyDown={onKeyDown}
           aria-label="Planos de assinatura. Use as setas do teclado para navegar."
-          className="no-scrollbar relative -mx-[var(--gutter)] mt-6 grid snap-x scroll-px-[var(--gutter)] px-[var(--gutter)] lg:mx-0 lg:scroll-px-0 lg:px-0 snap-mandatory auto-cols-[84%] grid-flow-col gap-4 overflow-x-auto overscroll-x-contain scroll-smooth pb-2 focus-visible:outline-offset-8 sm:auto-cols-[60%] md:auto-cols-[calc((100%-1.25rem)/2)] md:gap-5 lg:auto-cols-[calc((100%-2.5rem)/3)]"
+          className="no-scrollbar relative -mx-[var(--gutter)] mt-2 grid py-4 snap-x scroll-px-[var(--gutter)] px-[var(--gutter)] lg:mx-0 lg:scroll-px-0 lg:px-0 snap-mandatory auto-cols-[84%] grid-flow-col gap-4 overflow-x-auto overscroll-x-contain scroll-smooth pb-2 focus-visible:outline-offset-8 sm:auto-cols-[60%] md:auto-cols-[calc((100%-1.25rem)/2)] md:gap-5 lg:auto-cols-[calc((100%-2.5rem)/3)]"
         >
           {PLANS.map((plan, i) => (
             <li key={plan.id} className="snap-start">

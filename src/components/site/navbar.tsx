@@ -113,8 +113,14 @@ export function Navbar({ variant = "overlay" }: { variant?: "overlay" | "solid" 
               Minha conta
             </Link>
             <Link
+              href="/cliente"
+              className={`btn min-h-11 px-5 py-2.5 text-[0.92rem] lg:hidden ${solid ? "btn-dark" : "btn-glass"}`}
+            >
+              Minha conta
+            </Link>
+            <Link
               href="/agendar"
-              className={`btn min-h-11 px-6 py-2.5 text-[0.92rem] ${solid ? "btn-dark" : "btn-glass"}`}
+              className={`btn hidden min-h-11 px-6 py-2.5 text-[0.92rem] lg:inline-flex ${solid ? "btn-dark" : "btn-glass"}`}
             >
               Agendar
             </Link>

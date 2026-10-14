@@ -104,7 +104,7 @@ export function Hero() {
       />
       <div aria-hidden="true" className="grain absolute inset-0 -z-10" />
 
-      <div className="wrap relative flex flex-1 flex-col items-center justify-center pt-[var(--nav-h)] pb-10 text-center">
+      <div className="wrap relative flex flex-1 flex-col items-center justify-center pt-[calc(var(--nav-h)+24px)] pb-10 text-center">
         <h1 id="hero-titulo" className="sr-only">
           {BRAND.name}, barbearia em {BRAND.city} há {BRAND.years} anos
         </h1>
@@ -113,7 +113,7 @@ export function Hero() {
           <svg
             viewBox={LOGO_VIEWBOX}
             aria-hidden="true"
-            className="mx-auto h-[min(52svh,560px)] w-auto overflow-visible md:h-[min(60svh,620px)]"
+            className="mx-auto h-[min(44svh,500px)] w-auto overflow-visible md:h-[min(54svh,580px)]"
           >
             <motion.path
               d={LOGO_PATH}
