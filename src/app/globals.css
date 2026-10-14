@@ -24,6 +24,9 @@
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --gutter: clamp(20px, 4.5vw, 72px);
   --nav-h: 76px;
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
 
   --background: var(--paper);
   --foreground: var(--ink);
@@ -206,67 +209,110 @@
   }
 
   /* ── Ações ────────────────────────────────────────────────────── */
+  /* Pílulas. Sobre vídeo/escuro: vidro fosco (.btn-glass) ou branco cheio
+     (.btn-light). Sobre claro: preto cheio (.btn-dark) ou contorno. */
   .btn {
+    position: relative;
     display: inline-flex;
     min-height: 3.25rem;
     align-items: center;
     justify-content: center;
-    gap: 0.75rem;
-    padding: 0.95rem 1.6rem;
+    gap: 0.6rem;
+    padding: 0.9rem 1.7rem;
+    border-radius: 999px;
     font-family: var(--font-franklin), Arial, sans-serif;
     font-size: 0.98rem;
     font-weight: 600;
     line-height: 1.2;
     letter-spacing: 0.005em;
+    white-space: nowrap;
     transition:
-      background-color 220ms var(--ease),
-      color 220ms var(--ease),
-      border-color 220ms var(--ease),
-      transform 120ms var(--ease);
+      background-color 260ms var(--ease),
+      color 260ms var(--ease),
+      border-color 260ms var(--ease),
+      box-shadow 260ms var(--ease),
+      transform 260ms var(--ease);
     user-select: none;
   }
-
-  .btn:active {
-    transform: translateY(1px);
+  .btn:hover:not(:disabled) {
+    transform: translateY(-1px);
   }
-
+  .btn:active:not(:disabled) {
+    transform: translateY(0) scale(0.98);
+  }
   .btn:disabled {
     cursor: not-allowed;
     opacity: 0.4;
   }
 
-  /* Bloco cheio — o único elemento invertido da composição. */
+  .btn-glass {
+    color: var(--paper);
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    backdrop-filter: blur(14px) saturate(140%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.35),
+      0 10px 30px rgba(0, 0, 0, 0.22);
+  }
+  .btn-glass:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.24);
+    border-color: rgba(255, 255, 255, 0.55);
+  }
+
   .btn-light {
     background: var(--paper);
     color: var(--ink);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
   }
-  .btn-light:hover {
-    background: var(--concrete);
+  .btn-light:hover:not(:disabled) {
+    background: #f1f0ec;
   }
 
   .btn-dark {
-    background: var(--ink);
+    background: linear-gradient(180deg, #2b2b29 0%, #000 100%);
     color: var(--paper);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.14),
+      0 8px 22px rgba(0, 0, 0, 0.18);
   }
   .btn-dark:hover:not(:disabled) {
-    background: var(--graphite);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.18),
+      0 12px 28px rgba(0, 0, 0, 0.26);
   }
 
-  /* Contorno — ação secundária. */
   .btn-outline-light {
-    border: 1px solid var(--line-on-dark);
     color: var(--paper);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
   }
-  .btn-outline-light:hover {
+  .btn-outline-light:hover:not(:disabled) {
     border-color: var(--paper);
+    background: rgba(255, 255, 255, 0.12);
   }
 
   .btn-outline-dark {
-    border: 1px solid var(--line-on-light);
     color: var(--ink);
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid var(--line-on-light);
   }
   .btn-outline-dark:hover:not(:disabled) {
     border-color: var(--ink);
+  }
+
+  /* Superfície de vidro para cartões sobre fundo escuro/imagem. */
+  .glass {
+    background: rgba(255, 255, 255, 0.09);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    -webkit-backdrop-filter: blur(22px) saturate(140%);
+    backdrop-filter: blur(22px) saturate(140%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.18),
+      0 24px 60px rgba(0, 0, 0, 0.35);
   }
 
   .link {
@@ -296,7 +342,7 @@
      vem de `currentColor`, um único arquivo serve para preto e branco. */
   .lobeca-mark {
     display: inline-block;
-    aspect-ratio: 1070 / 1552;
+    aspect-ratio: 1700 / 2460;
     background-color: currentColor;
     -webkit-mask: url(/images/lobeca/marca/lobeca-mark.svg) center / contain no-repeat;
     mask: url(/images/lobeca/marca/lobeca-mark.svg) center / contain no-repeat;

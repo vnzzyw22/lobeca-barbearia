@@ -7,8 +7,9 @@
 //   Apucarana - PR", "+450 membros assinantes", "Profissionalismo, Qualidade e
 //   Estilo", nome de perfil "O TALENTO É NA LOBECA!").
 // - WhatsApp e mapa: linktr.ee/lobecabarbershop (links oficiais da marca).
-// - Endereço de rua e horário de funcionamento: NÃO verificados (fontes de
-//   terceiros divergem) — por isso não aparecem no site.
+// - Endereço, CEP, telefone e nota: perfil do Google enviado pelo cliente
+//   (2026-10-14), batendo com a legenda do vídeo promocional da Lobeca.
+// - Horário de funcionamento: NÃO verificado — não aparece no site.
 
 export const BRAND = {
   name: "Lobeca Barbershop",
@@ -24,6 +25,16 @@ export const BRAND = {
   instagramHandle: "lobecabarbershop",
   instagramUrl: "https://www.instagram.com/lobecabarbershop/",
   mapsUrl: "https://g.page/lobeca?share",
+  address: "Rua Osório Ribas de Paula, 1717",
+  neighborhood: "Centro",
+  zip: "86802-710",
+  // Perfil do Google (informado pelo cliente em 2026-10-14).
+  googleRating: 4.9,
+  googleReviews: 368,
+  directionsUrl:
+    "https://www.google.com/maps/dir/?api=1&destination=Barbearia+LOBECA,+R.+Os%C3%B3rio+Ribas+de+Paula,+1717,+Apucarana+-+PR",
+  mapEmbedUrl:
+    "https://www.google.com/maps?q=Barbearia+LOBECA,+R.+Os%C3%B3rio+Ribas+de+Paula,+1717+-+Centro,+Apucarana+-+PR,+86802-710&z=16&output=embed",
 } as const;
 
 export function whatsappUrl(message?: string) {
@@ -134,18 +145,45 @@ export const DEMO_BUSINESS_HOURS: Record<string, { open: string; close: string }
   sun: { closed: true },
 };
 
-// ── Mapa de fotografias ─────────────────────────────────────────────
-// Cada espaço de foto do site, com o arquivo esperado. Para substituir um
-// placeholder: salvar a foto no caminho indicado e trocar `src: null` pelo
-// caminho. Proporção e enquadramento já estão definidos em cada slot.
-export const PHOTO_SLOTS = {
-  casaEquipe: { src: "/images/lobeca/equipe/equipe-roda.jpg", alt: "Equipe da Lobeca reunida antes do expediente", ratio: "3 / 2" },
-  servicosNavalha: { src: null, alt: "Acabamento de barba na navalha", ratio: "4 / 5", expected: "/images/lobeca/servicos/barba-navalha.jpg", subject: "Serviço, barba na navalha" },
-  ambienteSalao: { src: null, alt: "Salão da Lobeca", ratio: "4 / 5", expected: "/images/lobeca/ambiente/salao.jpg", subject: "Ambiente, salão principal" },
-  ambienteDetalhe: { src: null, alt: "Detalhe da bancada", ratio: "1 / 1", expected: "/images/lobeca/ambiente/bancada.jpg", subject: "Ambiente, detalhe da bancada" },
-  trabalhoCorte: { src: null, alt: "Corte finalizado", ratio: "4 / 5", expected: "/images/lobeca/servicos/corte-finalizado.jpg", subject: "Trabalho, corte finalizado" },
-  trabalhoBarba: { src: null, alt: "Barba finalizada", ratio: "1 / 1", expected: "/images/lobeca/servicos/barba-finalizada.jpg", subject: "Trabalho, barba finalizada" },
-  fachada: { src: null, alt: "Fachada da Lobeca", ratio: "3 / 2", expected: "/images/lobeca/ambiente/fachada.jpg", subject: "Fachada com as letras LOBECA" },
-  noivoRetrato: { src: null, alt: "Noivo pronto para a cerimônia", ratio: "4 / 5", expected: "/images/lobeca/dia-do-noivo/retrato.jpg", subject: "Dia do Noivo, retrato final" },
-  noivoDetalhe: { src: null, alt: "Detalhe do acabamento do noivo", ratio: "1 / 1", expected: "/images/lobeca/dia-do-noivo/detalhe.jpg", subject: "Dia do Noivo, detalhe" },
+// ── Fotografias ─────────────────────────────────────────────────
+// Quadros reais dos vídeos da Lobeca (midia-cliente/). São stills de vídeo
+// (720px): trocar pelas fotos originais em alta quando chegarem, mantendo o
+// mesmo caminho — o layout não muda.
+export const PHOTOS = {
+  equipe: { src: "/images/lobeca/equipe/equipe-roda.jpg", alt: "Equipe da Lobeca reunida antes do expediente" },
+  salao: { src: "/images/lobeca/salao.jpg", alt: "Salão da Lobeca com espelhos iluminados e barbeiro atendendo" },
+  fachada: { src: "/images/lobeca/fachada-letras.jpg", alt: "Fachada da Lobeca com as letras LOBECA em relevo" },
+  barba: { src: "/images/lobeca/barba.jpg", alt: "Barbeiro fazendo a barba de um cliente com máquina" },
+  toalha: { src: "/images/lobeca/toalha-quente.jpg", alt: "Toalha quente no rosto do cliente antes da barba" },
+  maquina: { src: "/images/lobeca/broll-3.jpg", alt: "Acabamento na nuca com máquina dourada" },
+  atendimento: { src: "/images/lobeca/broll-5.jpg", alt: "Barbeiro sorrindo durante o atendimento" },
+  navalha: { src: "/images/lobeca/broll-9.jpg", alt: "Barba feita na navalha com toalha quente" },
+  acabamento: { src: "/images/lobeca/broll-11.jpg", alt: "Barbeiro concentrado no acabamento da barba" },
+} as const;
+
+export type PhotoKey = keyof typeof PHOTOS;
+
+// ── Vídeos ──────────────────────────────────────────────────────────
+// Todos sem áudio, sem frases e sem marca d'água (recortados dos vídeos do
+// cliente em midia-cliente/; comandos em CLAUDE.md > Mídia).
+export const SPACE_TOUR = {
+  src: "/videos/lobeca/espaco-tour.mp4",
+  poster: "/videos/lobeca/espaco-tour-poster.webp",
+  chapters: [
+    { label: "Fachada", start: 0 },
+    { label: "Recepção", start: 5.05 },
+    { label: "Bancadas", start: 9.15 },
+    { label: "Fliperama", start: 10.3 },
+    { label: "Corredor", start: 11.4 },
+    { label: "Na cadeira", start: 13.82 },
+  ],
+} as const;
+
+export const CLIPS = {
+  barbeiros1: { src: "/videos/lobeca/barbeiros-1.mp4", poster: "/videos/lobeca/barbeiros-1-poster.webp" },
+  barbeiros2: { src: "/videos/lobeca/barbeiros-2.mp4", poster: "/videos/lobeca/barbeiros-2-poster.webp" },
+  noivoReel: { src: "/videos/lobeca/noivo-reel.mp4", poster: "/videos/lobeca/noivo-reel-poster.webp" },
+  noivoPreparo: { src: "/videos/lobeca/noivo-preparo.mp4", poster: "/videos/lobeca/noivo-preparo-poster.webp" },
+  noivoCadeira: { src: "/videos/lobeca/noivo-cadeira.mp4", poster: "/videos/lobeca/noivo-cadeira-poster.webp" },
+  noivoBrinde: { src: "/videos/lobeca/noivo-brinde.mp4", poster: "/videos/lobeca/noivo-brinde-poster.webp" },
 } as const;

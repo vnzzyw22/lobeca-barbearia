@@ -37,11 +37,11 @@ export default async function AgendarPage(props: PageProps<"/agendar">) {
             <h1 className="display-xl text-[clamp(2.6rem,6.5vw,6rem)] lg:col-span-7">Agendar horário</h1>
             <div className="flex flex-col justify-end gap-4 lg:col-span-4 lg:col-start-9">
               <p className="text-ink/80">
-                Escolha o serviço, o profissional, o dia e o horário. O pedido fica pendente até a
-                confirmação da casa.
+                Escolha o barbeiro, os serviços que ele faz, o dia e o horário. O pedido fica
+                pendente até a confirmação da casa.
               </p>
               {demo && (
-                <p className="border border-ink/15 bg-concrete/60 px-4 py-3 text-[0.92rem]">
+                <p className="rounded-[var(--radius-md)] bg-concrete/60 px-4 py-3 text-[0.92rem]">
                   Prévia de demonstração: os horários são simulados e nenhum pedido chega à agenda real da
                   Lobeca.
                 </p>
@@ -52,11 +52,11 @@ export default async function AgendarPage(props: PageProps<"/agendar">) {
           <div className="mt-8 md:mt-12">
             <BookingFlow
               mode={demo ? "demo" : "live"}
-              services={services.map(toPublicService)}
+              services={services.map((sv) => ({ ...toPublicService(sv), durationMinutes: sv.duration_minutes }))}
               staff={bookingStaff}
               hours={(business ?? FALLBACK_BUSINESS).business_hours}
-              preselectedServiceId={first(searchParams.servico)}
               preselectedStaffId={first(searchParams.profissional)}
+              preselectedServiceIds={first(searchParams.servico)?.split(",").filter(Boolean)}
             />
           </div>
         </div>

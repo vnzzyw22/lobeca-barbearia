@@ -5,13 +5,14 @@ import {
   isValidWhatsapp,
 } from "@/lib/booking-validation";
 
-// Fluxo em seis passos + confirmação (brief da prévia): serviço,
-// profissional, data, horário, dados, revisão. Mesmas regras do redutor
-// original: trocar serviço, profissional ou data invalida o horário.
+// Fluxo: profissional → serviços (um ou mais, filtrados pelo profissional,
+// porque nem todo barbeiro faz tudo) → dia → horário → dados → revisão.
+// Trocar profissional, serviços ou dia invalida o horário escolhido, já que a
+// disponibilidade depende da soma das durações.
 
 export interface BookingFormData {
-  serviceId: string;
   staffId: string;
+  serviceIds: string[];
   dateISO: string;
   time: string | null;
   name: string;
@@ -21,7 +22,6 @@ export interface BookingFormData {
 
 export interface BookingFormState {
   step: number;
-  // 1 = avançando (o passo novo entra pela direita), -1 = voltando.
   direction: 1 | -1;
   data: BookingFormData;
   submitting: boolean;
@@ -29,30 +29,30 @@ export interface BookingFormState {
   success: { whatsappLink: string | null } | null;
 }
 
+type TextField = "staffId" | "dateISO" | "time" | "name" | "whatsapp" | "notes";
+
 export type BookingFormAction =
-  | { type: "SET_FIELD"; field: keyof BookingFormData; value: string | null }
-  | { type: "GO_NEXT" }
-  | { type: "GO_BACK" }
+  | { type: "SET_FIELD"; field: TextField; value: string | null }
+  | { type: "TOGGLE_SERVICE"; id: string }
+  | { type: "SET_SERVICES"; ids: string[] }
   | { type: "GO_TO"; step: number }
   | { type: "SUBMIT_START" }
   | { type: "SUBMIT_ERROR"; error: string }
   | { type: "SUBMIT_SUCCESS"; whatsappLink: string | null }
   | { type: "RESET" };
 
-export const STEP_LABELS = ["Serviço", "Profissional", "Data", "Horário", "Seus dados", "Revisão"];
+export const STEP_LABELS = ["Profissional", "Serviços", "Data", "Horário", "Seus dados", "Revisão"];
 export const LAST_STEP = STEP_LABELS.length - 1;
 
-const FIELDS_THAT_RESET_TIME = new Set<keyof BookingFormData>(["serviceId", "staffId", "dateISO"]);
+const FIELDS_THAT_RESET_TIME = new Set<TextField>(["staffId", "dateISO"]);
 
-export function initialBookingFormState(preselectedServiceId: string, preselectedStaffId: string): BookingFormState {
+export function initialBookingFormState(preselectedStaffId: string, preselectedServiceIds: string[]): BookingFormState {
   return {
-    // Chegando com o serviço já escolhido (link da carta de serviços), o
-    // fluxo começa no profissional — o serviço continua visível no resumo.
-    step: preselectedServiceId ? 1 : 0,
+    step: preselectedStaffId ? 1 : 0,
     direction: 1,
     data: {
-      serviceId: preselectedServiceId,
       staffId: preselectedStaffId,
+      serviceIds: preselectedServiceIds,
       dateISO: "",
       time: null,
       name: "",
@@ -68,21 +68,20 @@ export function initialBookingFormState(preselectedServiceId: string, preselecte
 export function bookingFormReducer(state: BookingFormState, action: BookingFormAction): BookingFormState {
   switch (action.type) {
     case "SET_FIELD": {
-      const resetTime = FIELDS_THAT_RESET_TIME.has(action.field);
+      const resetTime = FIELDS_THAT_RESET_TIME.has(action.field) && state.data[action.field] !== action.value;
       return {
         ...state,
         submitError: null,
-        data: {
-          ...state.data,
-          [action.field]: action.value,
-          ...(resetTime && state.data[action.field] !== action.value ? { time: null } : {}),
-        },
+        data: { ...state.data, [action.field]: action.value, ...(resetTime ? { time: null } : {}) },
       };
     }
-    case "GO_NEXT":
-      return { ...state, direction: 1, step: Math.min(state.step + 1, LAST_STEP) };
-    case "GO_BACK":
-      return { ...state, direction: -1, step: Math.max(state.step - 1, 0) };
+    case "TOGGLE_SERVICE": {
+      const has = state.data.serviceIds.includes(action.id);
+      const serviceIds = has ? state.data.serviceIds.filter((x) => x !== action.id) : [...state.data.serviceIds, action.id];
+      return { ...state, submitError: null, data: { ...state.data, serviceIds, time: null } };
+    }
+    case "SET_SERVICES":
+      return { ...state, data: { ...state.data, serviceIds: action.ids, time: null } };
     case "GO_TO":
       return { ...state, direction: action.step > state.step ? 1 : -1, step: action.step };
     case "SUBMIT_START":
@@ -92,7 +91,7 @@ export function bookingFormReducer(state: BookingFormState, action: BookingFormA
     case "SUBMIT_SUCCESS":
       return { ...state, submitting: false, success: { whatsappLink: action.whatsappLink } };
     case "RESET":
-      return initialBookingFormState("", "");
+      return initialBookingFormState("", []);
     default:
       return state;
   }
@@ -101,9 +100,9 @@ export function bookingFormReducer(state: BookingFormState, action: BookingFormA
 export function isStepValid(step: number, data: BookingFormData): boolean {
   switch (step) {
     case 0:
-      return Boolean(data.serviceId);
+      return Boolean(data.staffId);
     case 1:
-      return Boolean(data.serviceId && data.staffId);
+      return data.serviceIds.length > 0;
     case 2:
       return Boolean(data.dateISO) && isValidFutureDate(data.dateISO);
     case 3:

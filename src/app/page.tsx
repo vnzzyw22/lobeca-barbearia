@@ -1,21 +1,18 @@
 import { ContactSection } from "@/components/site/contact-section";
 import { Footer } from "@/components/site/footer";
-import { GallerySection } from "@/components/site/gallery-section";
 import { GroomTeaser } from "@/components/site/groom-teaser";
 import { Hero } from "@/components/site/hero";
 import { HouseSection } from "@/components/site/house-section";
 import { MobileBookBar } from "@/components/site/mobile-book-bar";
 import { Navbar } from "@/components/site/navbar";
 import { PlansSection } from "@/components/site/plans-section";
-import { ServicesSection } from "@/components/site/services-section";
-import { toPublicService } from "@/lib/public-services";
+import { ServicesTutorial } from "@/components/site/services-tutorial";
+import { SpaceSection } from "@/components/site/space-section";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
-import { getActiveServices } from "@/lib/supabase/queries";
 
-// Narrativa: filme da casa → 11 anos → carta de serviços → assinaturas →
-// Dia do Noivo → trabalhos e ambiente → contato. Cada seção tem uma função.
-export default async function Home() {
-  const services = (await getActiveServices()).map(toPublicService);
+// Narrativa: filme da casa → 11 anos → como agendar (serviços) → assinaturas →
+// Dia do Noivo → nosso espaço (tour em vídeo) → onde estamos. Cada seção tem uma função.
+export default function Home() {
   const demo = !isSupabaseConfigured;
 
   return (
@@ -24,10 +21,10 @@ export default async function Home() {
       <main id="conteudo" className="flex flex-1 flex-col">
         <Hero />
         <HouseSection />
-        <ServicesSection services={services} demo={demo} />
+        <ServicesTutorial />
         <PlansSection />
         <GroomTeaser />
-        <GallerySection />
+        <SpaceSection />
         <ContactSection />
       </main>
       <Footer demo={demo} />

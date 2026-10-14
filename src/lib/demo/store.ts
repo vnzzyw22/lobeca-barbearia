@@ -16,7 +16,7 @@ import type { AppointmentStatus, BusinessHours } from "@/lib/supabase/types";
 // Lobeca existir, o site volta a usar src/app/agendar/actions.ts e o painel
 // real em src/app/admin/(painel)/** (preservados, sem alteração de lógica).
 
-export const DEMO_STORAGE_KEY = "lobeca-demo-v1";
+export const DEMO_STORAGE_KEY = "lobeca-demo-v2";
 
 export interface DemoService {
   id: string;
@@ -49,7 +49,8 @@ export type DemoSource = "site" | "painel" | "exemplo";
 export interface DemoAppointment {
   id: string;
   clientId: string;
-  serviceId: string;
+  /** Um ou mais serviços; a duração do atendimento é a soma deles. */
+  serviceIds: string[];
   staffId: string;
   startsAt: string;
   endsAt: string;
@@ -57,7 +58,7 @@ export interface DemoAppointment {
   notes: string;
   source: DemoSource;
   createdAt: string;
-  /** Preço no momento do pedido (o catálogo pode mudar depois). */
+  /** Soma dos preços no momento do pedido (o catálogo pode mudar depois). */
   price: number;
 }
 
@@ -83,7 +84,7 @@ export interface DemoSettings {
 }
 
 export interface DemoState {
-  version: 1;
+  version: 2;
   services: DemoService[];
   staff: DemoStaff[];
   clients: DemoClient[];
@@ -126,24 +127,24 @@ const SAMPLE_CLIENTS = [
 ] as const;
 
 // [dia relativo, horário, cliente, serviço, profissional, status]
-const SAMPLE_AGENDA: [number, string, number, string, number, AppointmentStatus][] = [
-  [-2, "10:00", 0, "corte", 0, "completed"],
-  [-2, "14:30", 1, "barba", 1, "completed"],
-  [-1, "09:30", 2, "corte", 2, "completed"],
-  [-1, "11:00", 3, "selagem-progressiva", 0, "completed"],
-  [-1, "16:00", 4, "barba", 1, "no_show"],
-  [0, "09:00", 5, "corte", 0, "completed"],
-  [0, "10:00", 6, "barba", 1, "in_progress"],
-  [0, "11:00", 7, "corte", 2, "confirmed"],
-  [0, "14:00", 8, "design-sobrancelhas", 0, "confirmed"],
-  [0, "15:30", 9, "corte", 1, "pending"],
-  [0, "17:00", 0, "camuflagem-barba", 2, "pending"],
-  [1, "09:30", 1, "corte", 0, "confirmed"],
-  [1, "13:00", 2, "barba", 2, "pending"],
-  [2, "10:30", 3, "hidratacao", 1, "pending"],
-  [3, "15:00", 4, "corte", 0, "confirmed"],
-  [4, "09:00", 5, "esfoliacao-mascara", 2, "pending"],
-  [5, "11:30", 6, "corte", 1, "cancelled"],
+const SAMPLE_AGENDA: [number, string, number, string[], number, AppointmentStatus][] = [
+  [-2, "10:00", 0, ["corte"], 0, "completed"],
+  [-2, "14:30", 1, ["barba"], 1, "completed"],
+  [-1, "09:30", 2, ["corte", "barba"], 2, "completed"],
+  [-1, "11:00", 3, ["selagem-progressiva"], 0, "completed"],
+  [-1, "16:00", 4, ["barba"], 1, "no_show"],
+  [0, "09:00", 5, ["corte"], 0, "completed"],
+  [0, "10:00", 6, ["barba"], 1, "in_progress"],
+  [0, "11:00", 7, ["corte"], 2, "confirmed"],
+  [0, "14:00", 8, ["design-sobrancelhas"], 0, "confirmed"],
+  [0, "15:30", 9, ["corte", "barba"], 1, "pending"],
+  [0, "17:00", 0, ["camuflagem-barba"], 2, "pending"],
+  [1, "09:30", 1, ["corte", "design-sobrancelhas"], 0, "confirmed"],
+  [1, "13:00", 2, ["barba"], 2, "pending"],
+  [2, "10:30", 3, ["hidratacao"], 1, "pending"],
+  [3, "15:00", 4, ["corte"], 0, "confirmed"],
+  [4, "09:00", 5, ["esfoliacao-mascara"], 2, "pending"],
+  [5, "11:30", 6, ["corte"], 1, "cancelled"],
 ];
 
 export function createSeedState(now = new Date()): DemoState {
@@ -178,27 +179,28 @@ export function createSeedState(now = new Date()): DemoState {
     createdAt,
   }));
 
-  const appointments: DemoAppointment[] = SAMPLE_AGENDA.map(([day, time, c, serviceId, s, status], i) => {
-    const service = services.find((x) => x.id === serviceId)!;
+  const appointments: DemoAppointment[] = SAMPLE_AGENDA.map(([day, time, c, serviceIds, s, status], i) => {
+    const chosen = services.filter((x) => serviceIds.includes(x.id));
+    const minutes = chosen.reduce((t, x) => t + x.durationMinutes, 0);
     const date = addDays(today, day);
     const startsAt = at(date, time);
     return {
       id: `exemplo-${i + 1}`,
       clientId: clients[c].id,
-      serviceId,
+      serviceIds,
       staffId: staff[s].id,
       startsAt,
-      endsAt: new Date(new Date(startsAt).getTime() + service.durationMinutes * 60_000).toISOString(),
+      endsAt: new Date(new Date(startsAt).getTime() + minutes * 60_000).toISOString(),
       status,
       notes: "",
       source: "exemplo",
       createdAt,
-      price: service.price,
+      price: chosen.reduce((t, x) => t + x.price, 0),
     };
   });
 
   return {
-    version: 1,
+    version: 2,
     services,
     staff,
     clients,
@@ -225,7 +227,7 @@ function read(): DemoState {
     const raw = window.localStorage.getItem(DEMO_STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as DemoState;
-      if (parsed?.version === 1) {
+      if (parsed?.version === 2) {
         cache = parsed;
         return parsed;
       }

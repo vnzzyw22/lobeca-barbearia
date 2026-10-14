@@ -29,13 +29,26 @@ function busyFor(state: DemoState, staffId: string, dateISO: string) {
     .map((a) => ({ startsAt: a.startsAt, endsAt: a.endsAt }));
 }
 
-export function demoSlots(serviceId: string, staffId: string, dateISO: string): { slots: string[] } | { error: string } {
+/** Serviços ativos escolhidos e o total (minutos e R$) do atendimento. */
+export function demoSelection(state: DemoState, serviceIds: string[]) {
+  const services = state.services.filter((s) => s.active && serviceIds.includes(s.id));
+  return {
+    services,
+    minutes: services.reduce((t, s) => t + s.durationMinutes, 0),
+    price: services.reduce((t, s) => t + s.price, 0),
+  };
+}
+
+export function demoSlots(serviceIds: string[], staffId: string, dateISO: string): { slots: string[] } | { error: string } {
   if (!isValidFutureDate(dateISO)) return { error: "Escolha uma data entre hoje e os próximos 60 dias." };
   const state = getDemoState();
-  const service = state.services.find((s) => s.id === serviceId && s.active);
   const staff = state.staff.find((s) => s.id === staffId && s.active);
-  if (!service) return { error: "Serviço não encontrado." };
   if (!staff) return { error: "Profissional não encontrado." };
+  const { services, minutes } = demoSelection(state, serviceIds);
+  if (services.length === 0 || services.length !== serviceIds.length) return { error: "Serviço não encontrado." };
+  if (services.some((s) => !staff.serviceIds.includes(s.id))) {
+    return { error: `${staff.name} não executa um dos serviços escolhidos.` };
+  }
 
   const hours = state.settings.hours[weekdayKeyFor(dateISO)];
   const open = hours && "open" in hours ? hours.open : null;
@@ -46,7 +59,7 @@ export function demoSlots(serviceId: string, staffId: string, dateISO: string): 
       dateISO,
       openTime: open,
       closeTime: close,
-      durationMinutes: service.durationMinutes,
+      durationMinutes: minutes,
       busyRanges: busyFor(state, staffId, dateISO),
       stepMinutes: state.settings.slotStepMinutes,
       nowEpochMs: Date.now(),
@@ -55,7 +68,7 @@ export function demoSlots(serviceId: string, staffId: string, dateISO: string): 
 }
 
 export interface DemoBookingInput {
-  serviceId: string;
+  serviceIds: string[];
   staffId: string;
   dateISO: string;
   time: string;
@@ -68,28 +81,28 @@ export interface DemoBookingInput {
 
 export function createDemoAppointment(input: DemoBookingInput): { ok: true; id: string } | { ok: false; error: string } {
   const name = input.name.trim();
-  const whatsappDigits = input.whatsapp.replace(/\D/g, "");
+  const whatsappDigits = input.whatsapp.replace(/D/g, "");
   if (!isValidName(name)) return { ok: false, error: "Informe seu nome." };
   if (!isValidWhatsapp(whatsappDigits)) return { ok: false, error: "Informe um WhatsApp válido, com DDD." };
   if (!isValidFutureDate(input.dateISO)) return { ok: false, error: "Data inválida." };
   if (!isValidTime(input.time)) return { ok: false, error: "Horário inválido." };
 
   // Revalida o horário no momento do envio (outra aba pode ter ocupado).
-  const check = demoSlots(input.serviceId, input.staffId, input.dateISO);
+  const check = demoSlots(input.serviceIds, input.staffId, input.dateISO);
   if ("error" in check) return { ok: false, error: check.error };
   if (!check.slots.includes(input.time)) {
     return { ok: false, error: "Esse horário acabou de ser ocupado. Escolha outro." };
   }
 
   const state = getDemoState();
-  const service = state.services.find((s) => s.id === input.serviceId)!;
+  const { minutes, price } = demoSelection(state, input.serviceIds);
   const startsAt = timeToStartsAtISO(input.dateISO, input.time);
-  const endsAt = new Date(new Date(startsAt).getTime() + service.durationMinutes * 60_000).toISOString();
+  const endsAt = new Date(new Date(startsAt).getTime() + minutes * 60_000).toISOString();
   const now = new Date().toISOString();
   const id = newId("pedido");
 
   updateDemoState((s) => {
-    const existing = s.clients.find((c) => c.whatsapp.replace(/\D/g, "") === whatsappDigits);
+    const existing = s.clients.find((c) => c.whatsapp.replace(/D/g, "") === whatsappDigits);
     const clientId = existing?.id ?? newId("cliente");
     const clients = existing
       ? s.clients
@@ -102,7 +115,7 @@ export function createDemoAppointment(input: DemoBookingInput): { ok: true; id: 
         {
           id,
           clientId,
-          serviceId: service.id,
+          serviceIds: input.serviceIds,
           staffId: input.staffId,
           startsAt,
           endsAt,
@@ -110,7 +123,7 @@ export function createDemoAppointment(input: DemoBookingInput): { ok: true; id: 
           notes: input.notes?.trim() ?? "",
           source: input.source ?? "site",
           createdAt: now,
-          price: service.price,
+          price,
         },
       ],
     };

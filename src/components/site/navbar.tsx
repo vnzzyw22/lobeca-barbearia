@@ -11,8 +11,9 @@ import { EASE } from "@/lib/motion";
 const LINKS = [
   { href: "/#servicos", label: "Serviços" },
   { href: "/#assinaturas", label: "Assinaturas" },
+  { href: "/#espaco", label: "Nosso espaço" },
   { href: "/dia-do-noivo", label: "Dia do Noivo" },
-  { href: "/#contato", label: "Contato" },
+  { href: "/#contato", label: "Onde estamos" },
 ];
 
 // `overlay`: começa transparente sobre uma imagem/vídeo escuro (Home, Dia do
@@ -80,13 +81,17 @@ export function Navbar({ variant = "overlay" }: { variant?: "overlay" | "solid" 
 
   return (
     <>
-      <header
-        className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ease-[var(--ease)] ${
-          solid ? "border-b border-[var(--line-on-light)] bg-paper/95 backdrop-blur-sm" : "border-b border-transparent bg-transparent"
-        }`}
-      >
-        <div className={`wrap flex h-[var(--nav-h)] items-center justify-between gap-6 ${tone}`}>
-          <Link href="/" aria-label={`${BRAND.name}, início`} className="flex h-full items-center py-3">
+      <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 md:px-5">
+        <div
+          className={`mx-auto flex h-16 max-w-[1400px] items-center justify-between gap-6 rounded-full pr-2 pl-5 transition-[background-color,border-color,box-shadow] duration-500 ease-[var(--ease)] md:pl-7 ${tone} ${
+            solid
+              ? "border border-ink/10 bg-paper/75 shadow-[0_10px_40px_rgba(0,0,0,0.12)] backdrop-blur-xl"
+              : open
+                ? "border border-transparent"
+                : "border border-white/15 bg-white/[0.06] backdrop-blur-md"
+          }`}
+        >
+          <Link href="/" aria-label={`${BRAND.name}, início`} className="flex h-full items-center py-2.5">
             <LobecaMark decorative className="h-full" />
           </Link>
 
@@ -106,7 +111,7 @@ export function Navbar({ variant = "overlay" }: { variant?: "overlay" | "solid" 
           <div className="flex items-center gap-2">
             <Link
               href="/agendar"
-              className={`btn min-h-11 px-5 py-2.5 text-[0.92rem] ${solid ? "btn-dark" : "btn-light"}`}
+              className={`btn min-h-11 px-6 py-2.5 text-[0.92rem] ${solid ? "btn-dark" : "btn-glass"}`}
             >
               Agendar
             </Link>
@@ -116,7 +121,7 @@ export function Navbar({ variant = "overlay" }: { variant?: "overlay" | "solid" 
               aria-expanded={open}
               aria-controls="menu-movel"
               onClick={() => setOpen((v) => !v)}
-              className="flex h-11 w-11 items-center justify-center lg:hidden"
+              className="flex h-11 w-11 items-center justify-center rounded-full lg:hidden"
             >
               <span className="sr-only">{open ? "Fechar menu" : "Abrir menu"}</span>
               <span aria-hidden="true" className="relative block h-3 w-6">

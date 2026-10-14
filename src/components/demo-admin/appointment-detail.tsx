@@ -23,8 +23,15 @@ import {
 export interface AppointmentRow {
   appointment: DemoAppointment;
   client: DemoClient | undefined;
+  /** Rótulo combinado ("Corte + Barba") sobre o primeiro serviço; lista completa em `services`. */
   service: DemoService | undefined;
+  services: DemoService[];
   staff: DemoStaff | undefined;
+}
+
+function combine(services: DemoService[]) {
+  const service = services[0] ? { ...services[0], name: services.map((s) => s.name).join(" + ") } : undefined;
+  return { service, services };
 }
 
 export function joinAppointments(state: DemoState, list = state.appointments): AppointmentRow[] {
@@ -32,7 +39,7 @@ export function joinAppointments(state: DemoState, list = state.appointments): A
     .map((appointment) => ({
       appointment,
       client: state.clients.find((c) => c.id === appointment.clientId),
-      service: state.services.find((s) => s.id === appointment.serviceId),
+      ...combine(state.services.filter((s) => appointment.serviceIds.includes(s.id))),
       staff: state.staff.find((p) => p.id === appointment.staffId),
     }))
     .sort((a, b) => a.appointment.startsAt.localeCompare(b.appointment.startsAt));

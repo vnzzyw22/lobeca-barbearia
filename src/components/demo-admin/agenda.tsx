@@ -56,7 +56,7 @@ function NewAppointment({ state, dateISO, open, onClose }: { state: DemoState; d
   const staffId = staff.some((p) => p.id === form.staffId) ? form.staffId : (staff[0]?.id ?? "");
   const slots = useMemo(() => {
     if (!form.serviceId || !staffId || !form.date) return [];
-    const r = demoSlots(form.serviceId, staffId, form.date);
+    const r = demoSlots([form.serviceId], staffId, form.date);
     return "slots" in r ? r.slots : [];
   }, [form.serviceId, staffId, form.date, state]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -76,7 +76,7 @@ function NewAppointment({ state, dateISO, open, onClose }: { state: DemoState; d
   function submit(e: React.FormEvent) {
     e.preventDefault();
     const result = createDemoAppointment({
-      serviceId: form.serviceId,
+      serviceIds: [form.serviceId],
       staffId,
       dateISO: form.date,
       time: form.time,

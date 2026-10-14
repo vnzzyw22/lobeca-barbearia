@@ -16,7 +16,7 @@ function formatWeddingDate(dateISO: string) {
 }
 
 const fieldClass =
-  "min-h-13 w-full border-0 border-b border-paper/35 bg-transparent px-0 py-3 text-[1.08rem] text-paper outline-none transition-colors placeholder:text-paper/40 focus:border-paper aria-invalid:border-[#f0a48f] [color-scheme:dark]";
+  "min-h-13 w-full rounded-[var(--radius-sm)] border border-white/20 bg-white/[0.07] px-4 py-3 text-[1.05rem] text-paper outline-none transition-colors placeholder:text-paper/40 focus:border-white/70 focus:bg-white/[0.12] aria-invalid:border-[#f0a48f] [color-scheme:dark]";
 
 // Solicitação de orçamento do Dia do Noivo — separada do agendamento comum.
 // Demonstração: fica salva neste navegador e aparece no painel de

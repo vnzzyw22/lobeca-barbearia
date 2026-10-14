@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { BRAND, PLAN_TERM, PLANS, whatsappUrl, type Plan } from "@/content/lobeca";
+import { BRAND, PHOTOS, PLAN_TERM, PLANS, whatsappUrl, type Plan } from "@/content/lobeca";
 import { EASE } from "@/lib/motion";
-import { formatAmount } from "@/lib/format";
+import Image from "next/image";
+import { CountUp, FadeUp, RevealWords } from "./motion";
 import { LobecaMark } from "./brand";
 
 function Arrow({ direction }: { direction: "prev" | "next" }) {
@@ -37,30 +38,30 @@ function PlanCard({ plan }: { plan: Plan }) {
       onKeyDown={(e) => {
         if (open && e.key === "Escape") close();
       }}
-      className="relative h-full min-h-[25rem] overflow-hidden bg-paper text-ink md:min-h-[27rem]"
+      className="glass relative h-full min-h-[25rem] overflow-hidden rounded-[var(--radius-lg)] text-paper md:min-h-[27rem]"
     >
       <div inert={open} className="flex h-full flex-col p-6 md:p-8">
-        <LobecaMark decorative className="absolute top-6 right-6 h-9 md:top-8 md:right-8" />
+        <LobecaMark decorative className="absolute top-6 right-6 h-9 text-paper/80 md:top-8 md:right-8" />
         <h3 className="pr-12 font-display text-[1.65rem] leading-[1.02] font-extrabold tracking-[-0.01em] uppercase [overflow-wrap:normal] md:text-[1.85rem]">
           {plan.name}
         </h3>
         {plan.days && (
-          <p className="mt-4 w-fit border border-ink px-2.5 py-1 text-[0.85rem] font-semibold">{plan.days}</p>
+          <p className="mt-4 w-fit rounded-full border border-white/35 bg-white/10 px-3 py-1 text-[0.85rem] font-semibold">{plan.days}</p>
         )}
 
         <div className="mt-auto pt-10">
           <p className="flex items-baseline gap-1.5 font-display leading-none font-black tracking-[-0.02em]">
             <span className="text-[1.3rem] font-bold">R$</span>
-            <span className="text-[3.1rem] md:text-[3.5rem]">{formatAmount(plan.monthlyPrice)}</span>
+            <CountUp value={plan.monthlyPrice} decimals={2} duration={1.4} className="text-[3.1rem] md:text-[3.5rem]" />
           </p>
-          <p className="mt-2 text-[0.92rem] text-smoke">por mês. {PLAN_TERM}.</p>
+          <p className="mt-2 text-[0.92rem] text-paper/70">por mês. {PLAN_TERM}.</p>
           <button
             ref={triggerRef}
             type="button"
             aria-expanded={open}
             aria-controls={panelId}
             onClick={() => setOpen(true)}
-            className="btn btn-outline-dark mt-6 w-full"
+            className="btn btn-glass mt-6 w-full"
           >
             Consultar benefícios
           </button>
@@ -75,7 +76,7 @@ function PlanCard({ plan }: { plan: Plan }) {
             animate={reduceMotion ? { opacity: 1 } : { clipPath: "inset(0% 0 0 0)" }}
             exit={reduceMotion ? { opacity: 0 } : { clipPath: "inset(100% 0 0 0)" }}
             transition={{ duration: reduceMotion ? 0.12 : 0.42, ease: EASE }}
-            className="on-dark absolute inset-0 flex flex-col bg-ink p-6 text-paper md:p-8"
+            className="on-dark absolute inset-0 flex flex-col rounded-[var(--radius-lg)] bg-ink/92 p-6 text-paper backdrop-blur-xl md:p-8"
           >
             <h4 ref={focusHeading} tabIndex={-1} className="font-display text-[1.35rem] leading-[1.05] font-extrabold uppercase outline-none">
               {plan.name}
@@ -182,12 +183,21 @@ export function PlansSection() {
     <section
       id="assinaturas"
       aria-labelledby="assinaturas-titulo"
-      className="on-dark overflow-hidden bg-ink py-[clamp(72px,11vw,152px)] text-paper"
+      className="on-dark relative isolate overflow-hidden bg-ink py-[clamp(88px,12vw,168px)] text-paper"
     >
+      {/* Fundo: o salão real, desfocado — é o que o vidro dos cartões refrata. */}
+      <div aria-hidden="true" className="absolute inset-0 -z-10">
+        <Image src={PHOTOS.salao.src} alt="" fill sizes="100vw" className="scale-110 object-cover opacity-90 blur-2xl" />
+        <div className="absolute inset-0 bg-gradient-to-b from-ink via-ink/35 to-ink" />
+      </div>
       <div className="wrap">
         <div className="grid gap-8 lg:grid-cols-12 lg:items-end lg:gap-x-8">
           <h2 id="assinaturas-titulo" className="display-lg lg:col-span-7">
-            Mais de {BRAND.members} membros assinantes.
+            <span className="sr-only">Mais de {BRAND.members} membros assinantes.</span>
+            <span aria-hidden="true">
+              Mais de <CountUp value={BRAND.members} duration={2} />
+              <RevealWords text={"membros\nassinantes."} className="block" delay={0.2} />
+            </span>
           </h2>
           <div className="flex flex-col gap-6 lg:col-span-4 lg:col-start-9">
             <p className="max-w-[38ch] text-ash">
@@ -197,7 +207,7 @@ export function PlansSection() {
           </div>
         </div>
 
-        <div className="mt-12 flex items-center justify-between gap-6 border-t border-[var(--line-on-dark)] pt-5 md:mt-16">
+        <div className="mt-12 flex items-center justify-between gap-6 pt-5 md:mt-16">
           <p aria-live="polite" className="text-[0.95rem] text-ash tabular">
             <span className="sr-only">Mostrando planos </span>
             {counter}
@@ -208,7 +218,7 @@ export function PlansSection() {
               onClick={() => scrollByCards(-1)}
               disabled={atStart}
               aria-controls="trilho-planos"
-              className="flex h-12 w-12 items-center justify-center border border-[var(--line-on-dark)] transition-colors duration-200 hover:border-paper disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-[var(--line-on-dark)]"
+              className="btn-glass flex h-12 w-12 items-center justify-center rounded-full transition-[background-color,opacity] duration-200 disabled:cursor-not-allowed disabled:opacity-30"
             >
               <span className="sr-only">Planos anteriores</span>
               <Arrow direction="prev" />
@@ -218,7 +228,7 @@ export function PlansSection() {
               onClick={() => scrollByCards(1)}
               disabled={atEnd}
               aria-controls="trilho-planos"
-              className="flex h-12 w-12 items-center justify-center border border-[var(--line-on-dark)] transition-colors duration-200 hover:border-paper disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-[var(--line-on-dark)]"
+              className="btn-glass flex h-12 w-12 items-center justify-center rounded-full transition-[background-color,opacity] duration-200 disabled:cursor-not-allowed disabled:opacity-30"
             >
               <span className="sr-only">Próximos planos</span>
               <Arrow direction="next" />
@@ -234,16 +244,18 @@ export function PlansSection() {
           aria-label="Planos de assinatura. Use as setas do teclado para navegar."
           className="no-scrollbar relative -mx-[var(--gutter)] mt-6 grid snap-x scroll-px-[var(--gutter)] px-[var(--gutter)] lg:mx-0 lg:scroll-px-0 lg:px-0 snap-mandatory auto-cols-[84%] grid-flow-col gap-4 overflow-x-auto overscroll-x-contain scroll-smooth pb-2 focus-visible:outline-offset-8 sm:auto-cols-[60%] md:auto-cols-[calc((100%-1.25rem)/2)] md:gap-5 lg:auto-cols-[calc((100%-2.5rem)/3)]"
         >
-          {PLANS.map((plan) => (
+          {PLANS.map((plan, i) => (
             <li key={plan.id} className="snap-start">
-              <PlanCard plan={plan} />
+              <FadeUp delay={Math.min(i, 3) * 0.12} className="h-full">
+                <PlanCard plan={plan} />
+              </FadeUp>
             </li>
           ))}
         </ul>
 
-        <div aria-hidden="true" className="relative mt-8 h-px bg-[var(--line-on-dark)]">
+        <div aria-hidden="true" className="relative mt-8 h-1 rounded-full bg-white/15">
           <span
-            className="absolute -top-px h-[3px] bg-paper transition-[left,width] duration-300 ease-[var(--ease)]"
+            className="absolute inset-y-0 rounded-full bg-paper transition-[left,width] duration-300 ease-[var(--ease)]"
             style={{ left: `${progress.start * 100}%`, width: `${progress.size * 100}%` }}
           />
         </div>

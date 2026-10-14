@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { BRAND } from "@/content/lobeca";
 import { EASE } from "@/lib/motion";
+import { LOGO_PATH, LOGO_VIEWBOX } from "./logo-path";
 
 // Dois cortes do mesmo filme (ver DESIGN.md > Por que o tríptico):
 // tela mais larga que alta → tríptico 1920×1080; retrato → vertical 720×1280.
@@ -31,13 +32,10 @@ function HeroVideo() {
     return () => mq.removeEventListener("change", pick);
   }, []);
 
-  // Só toca enquanto a hero está visível e a aba está ativa (economiza
-  // bateria e CPU no celular). Se o navegador bloquear o autoplay, o pôster
-  // continua — é o fallback visual.
+  // Só toca com a hero visível e a aba ativa. Sem autoplay, fica o pôster.
   useEffect(() => {
     const video = videoRef.current;
     if (!video || !orientation) return;
-
     const tryPlay = () => video.play().catch(() => setPlaying(false));
     const observer = new IntersectionObserver(
       ([entry]) => (entry.isIntersecting && !document.hidden ? tryPlay() : video.pause()),
@@ -54,24 +52,15 @@ function HeroVideo() {
 
   return (
     <div aria-hidden="true" className="absolute inset-0 -z-10 bg-ink">
-      {/* Pôster na primeira pintura, antes de qualquer JS: sem tela preta. */}
       <picture>
         <source media={LANDSCAPE} srcSet={SOURCES.landscape.poster} />
-        <img
-          src={SOURCES.portrait.poster}
-          alt=""
-          fetchPriority="high"
-          className="absolute inset-0 h-full w-full object-cover"
-        />
+        <img src={SOURCES.portrait.poster} alt="" fetchPriority="high" className="absolute inset-0 h-full w-full object-cover" />
       </picture>
-
       {orientation && !reduceMotion && (
         <video
           ref={videoRef}
           key={orientation}
-          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ease-[var(--ease)] ${
-            playing ? "opacity-100" : "opacity-0"
-          }`}
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ease-[var(--ease)] ${playing ? "opacity-100" : "opacity-0"}`}
           src={SOURCES[orientation].video}
           poster={SOURCES[orientation].poster}
           autoPlay
@@ -87,69 +76,95 @@ function HeroVideo() {
   );
 }
 
-const TITLE_LINES = ["O talento", "é na Lobeca."];
-
 export function Hero() {
-  const reduceMotion = useReducedMotion();
+  const reduce = useReducedMotion();
+  const sectionRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end start"] });
+  // Ao rolar, a marca sobe devagar e some — a hero "fica para trás".
+  const logoY = useTransform(scrollYProgress, [0, 1], [0, -120]);
+  const logoOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
 
   return (
     <section
+      ref={sectionRef}
       aria-labelledby="hero-titulo"
-      className="on-dark relative isolate flex h-[100svh] min-h-[560px] flex-col overflow-hidden bg-ink text-paper"
+      className="on-dark relative isolate flex h-[100svh] min-h-[600px] flex-col overflow-hidden bg-ink text-paper"
     >
       <HeroVideo />
-
-      {/* Contraste: uniforme leve + mais denso embaixo e à esquerda, onde
-          fica o texto. O vídeo continua legível no alto e à direita. */}
-      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-ink/25" />
+      {/* Contraste: escurecimento geral + vinheta, para o traço fino da marca
+          ler sobre qualquer cena sem apagar o filme. */}
+      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-ink/35" />
       <div
         aria-hidden="true"
         className="absolute inset-0 -z-10"
         style={{
           background:
-            "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.55) 32%, rgba(0,0,0,0) 62%), linear-gradient(to right, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0) 55%), linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0) 22%)",
+            "radial-gradient(ellipse 70% 60% at 50% 45%, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.55) 100%), linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 40%)",
         }}
       />
       <div aria-hidden="true" className="grain absolute inset-0 -z-10" />
 
-      <div className="wrap relative flex flex-1 flex-col justify-end pb-[clamp(28px,7vh,80px)]">
-        <h1
-          id="hero-titulo"
-          className="font-display text-[clamp(3rem,14.5vw,10.5rem)] leading-[0.86] font-black tracking-[-0.025em]"
-        >
-          {TITLE_LINES.map((line, i) => (
-            <span key={line} className="block overflow-hidden pb-[0.06em]">
-              <motion.span
-                className="block"
-                initial={reduceMotion ? false : { y: "105%" }}
-                animate={{ y: 0 }}
-                transition={{ duration: 0.9, delay: 0.15 + i * 0.09, ease: EASE }}
-              >
-                {line}
-              </motion.span>
-            </span>
-          ))}
+      <div className="wrap relative flex flex-1 flex-col items-center justify-center pt-[var(--nav-h)] pb-10 text-center">
+        <h1 id="hero-titulo" className="sr-only">
+          {BRAND.name}, barbearia em {BRAND.city} há {BRAND.years} anos
         </h1>
 
+        <motion.div style={reduce ? undefined : { y: logoY, opacity: logoOpacity }} className="w-full">
+          <svg
+            viewBox={LOGO_VIEWBOX}
+            aria-hidden="true"
+            className="mx-auto h-[min(52svh,560px)] w-auto overflow-visible md:h-[min(60svh,620px)]"
+          >
+            <motion.path
+              d={LOGO_PATH}
+              fill="transparent"
+              stroke="white"
+              strokeLinejoin="round"
+              className="[stroke-width:11] md:[stroke-width:7]"
+              initial={reduce ? false : { pathLength: 0, opacity: 0 }}
+              animate={{ pathLength: 1, opacity: 1 }}
+              transition={{
+                pathLength: { duration: 2.4, ease: [0.65, 0, 0.35, 1], delay: 0.2 },
+                opacity: { duration: 0.3, delay: 0.2 },
+              }}
+            />
+          </svg>
+        </motion.div>
+
         <motion.div
-          initial={reduceMotion ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.55, ease: EASE }}
-          className="mt-8 flex flex-col gap-6 md:mt-10 md:flex-row md:items-end md:justify-between"
+          initial={reduce ? false : { opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: reduce ? 0 : 1.5, ease: EASE }}
+          className="mt-8 flex flex-col items-center gap-6 md:mt-10"
         >
-          <p className="max-w-[26ch] text-[1.08rem] leading-snug text-paper/90 md:text-[1.2rem]">
-            Barbearia em {BRAND.city}, Paraná, há {BRAND.years} anos.
+          <p className="text-[1.02rem] tracking-[0.01em] text-paper/90 md:text-[1.15rem]">
+            {BRAND.motto.replace(".", "")}. Barbearia em {BRAND.city} há {BRAND.years} anos.
           </p>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
-            <Link href="/agendar" className="btn btn-light min-h-14 px-8 text-[1.02rem]">
+          <div className="flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row">
+            <Link href="/agendar" className="btn btn-glass min-h-14 w-full max-w-xs px-9 text-[1.02rem] sm:w-auto">
               Agendar horário
             </Link>
-            <Link href="/#assinaturas" className="link w-fit py-2 text-[1rem] font-medium text-paper">
+            <Link href="/#assinaturas" className="btn btn-outline-light min-h-14 w-full max-w-xs px-8 sm:w-auto">
               Conhecer as assinaturas
             </Link>
           </div>
         </motion.div>
       </div>
+
+      {/* Indicação de rolagem */}
+      <motion.div
+        aria-hidden="true"
+        initial={reduce ? false : { opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 2.4, duration: 0.8 }}
+        className="absolute bottom-6 left-1/2 hidden h-10 w-px -translate-x-1/2 overflow-hidden bg-paper/20 md:block"
+      >
+        <motion.span
+          className="absolute inset-x-0 top-0 h-4 bg-paper"
+          animate={reduce ? undefined : { y: ["-100%", "250%"] }}
+          transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+        />
+      </motion.div>
     </section>
   );
 }

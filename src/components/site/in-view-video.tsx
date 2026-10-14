@@ -35,7 +35,7 @@ export function InViewVideo({
   }, [reduceMotion]);
 
   return (
-    <div aria-hidden="true" className={`relative overflow-hidden bg-graphite ${className}`}>
+    <div aria-hidden="true" className={`${className.split(" ").some((c) => c === "absolute" || c === "fixed") ? "" : "relative"} overflow-hidden bg-graphite ${className}`}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={poster} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" style={{ objectPosition: focus }} />
       {!reduceMotion && (
