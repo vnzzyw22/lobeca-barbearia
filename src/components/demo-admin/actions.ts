@@ -28,7 +28,7 @@ export function setAppointmentNotes(id: string, notes: string) {
   }));
 }
 
-export function updateClient(id: string, patch: { name?: string; whatsapp?: string; notes?: string }) {
+export function updateClient(id: string, patch: { name?: string; whatsapp?: string; notes?: string; planId?: string | null; memberSince?: string | null }) {
   updateDemoState((s) => ({
     ...s,
     clients: s.clients.map((c) => (c.id === id ? { ...c, ...patch } : c)),

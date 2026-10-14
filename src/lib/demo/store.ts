@@ -16,7 +16,7 @@ import type { AppointmentStatus, BusinessHours } from "@/lib/supabase/types";
 // Lobeca existir, o site volta a usar src/app/agendar/actions.ts e o painel
 // real em src/app/admin/(painel)/** (preservados, sem alteração de lógica).
 
-export const DEMO_STORAGE_KEY = "lobeca-demo-v2";
+export const DEMO_STORAGE_KEY = "lobeca-demo-v3";
 
 export interface DemoService {
   id: string;
@@ -42,6 +42,17 @@ export interface DemoClient {
   whatsapp: string;
   notes: string;
   createdAt: string;
+  /** Plano de assinatura (id de PLANS) — definido pela recepção no painel. */
+  planId: string | null;
+  /** Data (YYYY-MM-DD) de início da assinatura. */
+  memberSince: string | null;
+}
+
+export interface DemoExpense {
+  id: string;
+  description: string;
+  amount: number;
+  date: string; // YYYY-MM-DD
 }
 
 export type DemoSource = "site" | "painel" | "exemplo";
@@ -84,12 +95,13 @@ export interface DemoSettings {
 }
 
 export interface DemoState {
-  version: 2;
+  version: 3;
   services: DemoService[];
   staff: DemoStaff[];
   clients: DemoClient[];
   appointments: DemoAppointment[];
   groomRequests: DemoGroomRequest[];
+  expenses: DemoExpense[];
   settings: DemoSettings;
 }
 
@@ -147,6 +159,42 @@ const SAMPLE_AGENDA: [number, string, number, string[], number, AppointmentStatu
   [5, "11:30", 6, ["corte"], 1, "cancelled"],
 ];
 
+// Assinantes de exemplo: [plano, dias desde a adesão] (índice = cliente).
+const SAMPLE_PLANS: ([string, number] | null)[] = [
+  ["corte-e-barba-vip", 210],
+  null,
+  ["corte-e-barba-exclusive", 400],
+  ["corte-vip", 95],
+  null,
+  ["plano-one", 60],
+  ["barba-week", 140],
+  null,
+  ["corte-empresarial", 300],
+  null,
+];
+
+// Ritmo de cada cliente: [intervalo em dias, visitas anteriores, serviços].
+const SAMPLE_HISTORY: [number, number, string[]][] = [
+  [21, 5, ["corte", "barba"]],
+  [28, 3, ["barba"]],
+  [18, 6, ["corte", "barba"]],
+  [24, 4, ["corte"]],
+  [35, 2, ["corte"]],
+  [30, 3, ["corte"]],
+  [14, 6, ["barba"]],
+  [26, 3, ["corte", "design-sobrancelhas"]],
+  [20, 4, ["corte"]],
+  [33, 2, ["corte", "barba"]],
+];
+
+// Despesas fictícias do mês (só para a prévia do financeiro).
+const SAMPLE_EXPENSES: [string, number, number][] = [
+  ["Produtos de barbearia (exemplo)", 860, -18],
+  ["Energia elétrica (exemplo)", 420, -11],
+  ["Lavanderia das toalhas (exemplo)", 240, -6],
+  ["Manutenção de máquinas (exemplo)", 180, -2],
+];
+
 export function createSeedState(now = new Date()): DemoState {
   const today = isoDate(now);
   const createdAt = now.toISOString();
@@ -177,6 +225,8 @@ export function createSeedState(now = new Date()): DemoState {
     whatsapp,
     notes: "",
     createdAt,
+    planId: SAMPLE_PLANS[i]?.[0] ?? null,
+    memberSince: SAMPLE_PLANS[i] ? addDays(today, -SAMPLE_PLANS[i]![1]) : null,
   }));
 
   const appointments: DemoAppointment[] = SAMPLE_AGENDA.map(([day, time, c, serviceIds, s, status], i) => {
@@ -199,13 +249,45 @@ export function createSeedState(now = new Date()): DemoState {
     };
   });
 
+  // Histórico: visitas concluídas nos últimos meses, no ritmo de cada cliente.
+  SAMPLE_CLIENTS.forEach((_, c) => {
+    const [interval, visits, combo] = SAMPLE_HISTORY[c];
+    for (let v = 1; v <= visits; v++) {
+      const day = -(4 + c + v * interval);
+      const chosen = services.filter((x) => combo.includes(x.id));
+      const minutes = chosen.reduce((t, x) => t + x.durationMinutes, 0);
+      const startsAt = at(addDays(today, day), `${String(9 + (c % 8)).padStart(2, "0")}:00`);
+      appointments.push({
+        id: `historico-${c + 1}-${v}`,
+        clientId: clients[c].id,
+        serviceIds: combo,
+        staffId: staff[c % staff.length].id,
+        startsAt,
+        endsAt: new Date(new Date(startsAt).getTime() + minutes * 60_000).toISOString(),
+        status: "completed",
+        notes: "",
+        source: "exemplo",
+        createdAt,
+        price: chosen.reduce((t, x) => t + x.price, 0),
+      });
+    }
+  });
+
+  const expenses: DemoExpense[] = SAMPLE_EXPENSES.map(([description, amount, day], i) => ({
+    id: `despesa-exemplo-${i + 1}`,
+    description,
+    amount,
+    date: addDays(today, day),
+  }));
+
   return {
-    version: 2,
+    version: 3,
     services,
     staff,
     clients,
     appointments,
     groomRequests: [],
+    expenses,
     settings: {
       businessName: BRAND.name,
       whatsapp: BRAND.whatsappDigits,
@@ -227,7 +309,7 @@ function read(): DemoState {
     const raw = window.localStorage.getItem(DEMO_STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as DemoState;
-      if (parsed?.version === 2) {
+      if (parsed?.version === 3) {
         cache = parsed;
         return parsed;
       }

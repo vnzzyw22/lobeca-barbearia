@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { PLANS } from "@/content/lobeca";
 import type { DemoClient, DemoState } from "@/lib/demo/store";
 import { updateClient } from "./actions";
 import { joinAppointments } from "./appointment-detail";
@@ -12,6 +13,7 @@ import {
   Drawer,
   EmptyState,
   fmtDay,
+  fmtMoney,
   fmtPhone,
   fmtTime,
   inputClass,
@@ -24,7 +26,7 @@ import {
 
 function ClientEditor({ client, state, onClose }: { client: DemoClient; state: DemoState; onClose: () => void }) {
   const toast = useToast();
-  const [form, setForm] = useState({ name: client.name, whatsapp: fmtPhone(client.whatsapp), notes: client.notes });
+  const [form, setForm] = useState({ name: client.name, whatsapp: fmtPhone(client.whatsapp), notes: client.notes, planId: client.planId ?? "" });
   const history = joinAppointments(state, state.appointments.filter((a) => a.clientId === client.id)).reverse();
 
   return (
@@ -34,7 +36,13 @@ function ClientEditor({ client, state, onClose }: { client: DemoClient; state: D
         onSubmit={(e) => {
           e.preventDefault();
           if (!form.name.trim()) return;
-          updateClient(client.id, { name: form.name.trim(), whatsapp: form.whatsapp.replace(/\D/g, ""), notes: form.notes.trim() });
+          updateClient(client.id, {
+            name: form.name.trim(),
+            whatsapp: form.whatsapp.replace(/\D/g, ""),
+            notes: form.notes.trim(),
+            planId: form.planId || null,
+            memberSince: form.planId ? (form.planId === client.planId ? client.memberSince : todayISO()) : null,
+          });
           toast("Cliente atualizado.");
         }}
       >
@@ -45,6 +53,17 @@ function ClientEditor({ client, state, onClose }: { client: DemoClient; state: D
         <div className="flex flex-col gap-1.5">
           <label htmlFor="cl-whats" className={labelClass}>WhatsApp</label>
           <input id="cl-whats" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} className={`${inputClass} tabular`} />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="cl-plano" className={labelClass}>Plano de assinatura</label>
+          <select id="cl-plano" value={form.planId} onChange={(e) => setForm({ ...form, planId: e.target.value })} className={inputClass}>
+            <option value="">Não assina</option>
+            {PLANS.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name} ({fmtMoney(p.monthlyPrice)}/mês)
+              </option>
+            ))}
+          </select>
         </div>
         <div className="flex flex-col gap-1.5">
           <label htmlFor="cl-obs" className={labelClass}>Observações (preferências, alergias, estilo)</label>

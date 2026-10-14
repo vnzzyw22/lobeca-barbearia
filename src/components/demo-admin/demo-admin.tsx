@@ -8,6 +8,7 @@ import { Agenda } from "./agenda";
 import { Appointments } from "./appointments";
 import { Clients } from "./clients";
 import { Dashboard } from "./dashboard";
+import { Finance } from "./finance";
 import { Grooms } from "./grooms";
 import { Services } from "./services";
 import { Settings } from "./settings";
@@ -158,6 +159,8 @@ function Shell({ section, date }: { section: DemoSectionId; date?: string }) {
             <Agenda key={date ?? "hoje"} state={state} initialDate={date} />
           ) : section === "agendamentos" ? (
             <Appointments state={state} />
+          ) : section === "financeiro" ? (
+            <Finance state={state} />
           ) : section === "clientes" ? (
             <Clients state={state} />
           ) : section === "servicos" ? (

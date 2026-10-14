@@ -106,7 +106,7 @@ export function createDemoAppointment(input: DemoBookingInput): { ok: true; id: 
     const clientId = existing?.id ?? newId("cliente");
     const clients = existing
       ? s.clients
-      : [{ id: clientId, name, whatsapp: whatsappDigits, notes: "", createdAt: now }, ...s.clients];
+      : [{ id: clientId, name, whatsapp: whatsappDigits, notes: "", createdAt: now, planId: null, memberSince: null }, ...s.clients];
     return {
       ...s,
       clients,

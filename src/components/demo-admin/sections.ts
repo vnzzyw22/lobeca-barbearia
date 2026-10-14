@@ -4,6 +4,7 @@ export const DEMO_SECTIONS = [
   { id: "inicio", href: "/admin", label: "Visão geral" },
   { id: "agenda", href: "/admin/agenda", label: "Agenda" },
   { id: "agendamentos", href: "/admin/agendamentos", label: "Agendamentos" },
+  { id: "financeiro", href: "/admin/financeiro", label: "Financeiro" },
   { id: "clientes", href: "/admin/clientes", label: "Clientes" },
   { id: "servicos", href: "/admin/servicos", label: "Serviços e preços" },
   { id: "equipe", href: "/admin/equipe", label: "Profissionais" },
