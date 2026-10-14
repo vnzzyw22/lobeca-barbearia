@@ -1,0 +1,331 @@
+@import "tailwindcss";
+
+/* ───────────────────────────────────────────────────────────────
+   LOBECA BARBERSHOP — tokens (ver DESIGN.md)
+   Preto e branco puros como a logo; cimento e grafite como
+   superfícies secundárias; sem cor de acento — a cor do site é a
+   fotografia. Estados funcionais só em formulário e painel.
+   ─────────────────────────────────────────────────────────────── */
+:root {
+  --ink: #000000;
+  --paper: #ffffff;
+  --concrete: #d9d8d3;
+  --concrete-deep: #c4c3bd;
+  --graphite: #262624;
+  --smoke: #6a6964; /* texto secundário sobre branco — AA 5.4:1 */
+  --ash: #a8a7a1; /* texto secundário sobre preto — AA 8.6:1 */
+  --line-on-dark: rgba(255, 255, 255, 0.18);
+  --line-on-light: rgba(0, 0, 0, 0.14);
+
+  --ok: #2f6b3f;
+  --warn: #8a5a0b;
+  --danger: #a3361f;
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --gutter: clamp(20px, 4.5vw, 72px);
+  --nav-h: 76px;
+
+  --background: var(--paper);
+  --foreground: var(--ink);
+
+  /* Apelidos do template herdado: o painel real (Supabase) e a área do
+     barbeiro ainda usam estes nomes. Apontam para a paleta Lobeca. */
+  --color-brand-red: var(--paper);
+  --color-brand-black: var(--ink);
+  --color-brand-ink: var(--ink);
+  --royal-soft: var(--ash);
+  --fog: var(--ash);
+  --steel: var(--graphite);
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+  --color-concrete: var(--concrete);
+  --color-concrete-deep: var(--concrete-deep);
+  --color-graphite: var(--graphite);
+  --color-smoke: var(--smoke);
+  --color-ash: var(--ash);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-danger: var(--danger);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* herdados (ver nota acima) */
+  --color-brand-red: var(--color-brand-red);
+  --color-brand-black: var(--color-brand-black);
+  --color-brand-ink: var(--color-brand-ink);
+  --color-royal-soft: var(--royal-soft);
+  --color-fog: var(--fog);
+  --color-steel: var(--steel);
+
+  --font-sans: var(--font-franklin);
+  --font-display: var(--font-besley);
+  --font-heading: var(--font-besley);
+  --font-nav: var(--font-franklin);
+
+  --ease-signature: var(--ease);
+}
+
+/* Camadas: estilos próprios ficam em base/components para que os
+   utilitários do Tailwind (layer utilities) sempre possam sobrescrevê-los. */
+@layer base {
+  /* ── Base ─────────────────────────────────────────────────────── */
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    scrollbar-color: var(--smoke) var(--paper);
+  }
+
+  .on-dark {
+    scrollbar-color: var(--ash) var(--ink);
+  }
+
+  html,
+  body {
+    overflow-x: clip;
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-franklin), "Franklin Gothic", Arial, sans-serif;
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+    overflow-wrap: break-word;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .on-dark ::selection {
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+  }
+
+  [id] {
+    scroll-margin-top: calc(var(--nav-h) + 12px);
+  }
+
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  summary,
+  label {
+    touch-action: manipulation;
+  }
+
+  input,
+  textarea {
+    caret-color: currentColor;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* ── Estrutura ────────────────────────────────────────────────── */
+  .wrap {
+    width: 100%;
+    max-width: 1440px;
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  /* Tipografia de exibição (Besley). Tamanhos fluidos — ver DESIGN.md. */
+  .display-xl {
+    font-family: var(--font-besley), Georgia, serif;
+    font-weight: 900;
+    font-size: clamp(3.4rem, 10.5vw, 10.5rem);
+    line-height: 0.86;
+    letter-spacing: -0.025em;
+  }
+
+  .display-lg {
+    font-family: var(--font-besley), Georgia, serif;
+    font-weight: 800;
+    font-size: clamp(2.6rem, 6vw, 5.5rem);
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+  }
+
+  .display-md {
+    font-family: var(--font-besley), Georgia, serif;
+    font-weight: 800;
+    font-size: clamp(1.9rem, 3.2vw, 2.75rem);
+    line-height: 1;
+    letter-spacing: -0.015em;
+  }
+
+  .lede {
+    font-size: clamp(1.125rem, 1.4vw, 1.3rem);
+    line-height: 1.55;
+  }
+
+  .caption {
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    letter-spacing: 0.005em;
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+
+  /* ── Ações ────────────────────────────────────────────────────── */
+  .btn {
+    display: inline-flex;
+    min-height: 3.25rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0.95rem 1.6rem;
+    font-family: var(--font-franklin), Arial, sans-serif;
+    font-size: 0.98rem;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: 0.005em;
+    transition:
+      background-color 220ms var(--ease),
+      color 220ms var(--ease),
+      border-color 220ms var(--ease),
+      transform 120ms var(--ease);
+    user-select: none;
+  }
+
+  .btn:active {
+    transform: translateY(1px);
+  }
+
+  .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+  }
+
+  /* Bloco cheio — o único elemento invertido da composição. */
+  .btn-light {
+    background: var(--paper);
+    color: var(--ink);
+  }
+  .btn-light:hover {
+    background: var(--concrete);
+  }
+
+  .btn-dark {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .btn-dark:hover:not(:disabled) {
+    background: var(--graphite);
+  }
+
+  /* Contorno — ação secundária. */
+  .btn-outline-light {
+    border: 1px solid var(--line-on-dark);
+    color: var(--paper);
+  }
+  .btn-outline-light:hover {
+    border-color: var(--paper);
+  }
+
+  .btn-outline-dark {
+    border: 1px solid var(--line-on-light);
+    color: var(--ink);
+  }
+  .btn-outline-dark:hover:not(:disabled) {
+    border-color: var(--ink);
+  }
+
+  .link {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.28em;
+    transition: text-decoration-thickness 160ms var(--ease);
+  }
+  .link:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  /* ── Textura ──────────────────────────────────────────────────── */
+  /* Grão de filme sutil (o mesmo tratamento dos posts da marca). SVG
+     inline, sem requisição extra. */
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0.55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    opacity: 0.16;
+    mix-blend-mode: overlay;
+  }
+
+  /* Marca oficial (traçada do arquivo do cliente) como máscara: a cor
+     vem de `currentColor`, um único arquivo serve para preto e branco. */
+  .lobeca-mark {
+    display: inline-block;
+    aspect-ratio: 1070 / 1552;
+    background-color: currentColor;
+    -webkit-mask: url(/images/lobeca/marca/lobeca-mark.svg) center / contain no-repeat;
+    mask: url(/images/lobeca/marca/lobeca-mark.svg) center / contain no-repeat;
+  }
+
+  /* ── Herdado (painel real / área do barbeiro) ──────────────────── */
+  .label {
+    font-family: var(--font-franklin), Arial, sans-serif;
+    font-weight: 600;
+    font-size: 0.8rem;
+    letter-spacing: 0.01em;
+  }
+
+  .meta {
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+
+  .field-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  /* Barra de rolagem horizontal escondida (carrossel tem controles
+     próprios e indicação visual de progresso). */
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
