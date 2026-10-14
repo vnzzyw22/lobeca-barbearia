@@ -109,6 +109,9 @@ export function Navbar({ variant = "overlay" }: { variant?: "overlay" | "solid" 
           </nav>
 
           <div className="flex items-center gap-2">
+            <Link href="/cliente" className="hidden px-3 py-2 text-[0.92rem] font-medium xl:block">
+              Minha conta
+            </Link>
             <Link
               href="/agendar"
               className={`btn min-h-11 px-6 py-2.5 text-[0.92rem] ${solid ? "btn-dark" : "btn-glass"}`}
@@ -168,6 +171,9 @@ export function Navbar({ variant = "overlay" }: { variant?: "overlay" | "solid" 
               ))}
             </nav>
             <div className="wrap flex flex-col gap-3 pb-10 text-[0.95rem] text-ash">
+              <Link href="/cliente" onClick={() => setOpen(false)} className="link w-fit text-paper">
+                Minha conta (área do cliente)
+              </Link>
               <a href={whatsappUrl(WHATSAPP_DEFAULT_MESSAGE)} target="_blank" rel="noopener noreferrer" className="link w-fit">
                 WhatsApp {BRAND.whatsappLabel}
               </a>

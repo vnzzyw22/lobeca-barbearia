@@ -887,6 +887,9 @@ function SuccessView({
               <Link href={`/admin/agenda?data=${dateISO}`} className="btn btn-dark">
                 Ver no painel de demonstração
               </Link>
+              <Link href="/cliente" className="btn btn-outline-dark">
+                Ver na área do cliente
+              </Link>
               <button type="button" onClick={onRestart} className="btn btn-outline-dark">
                 Simular outro pedido
               </button>

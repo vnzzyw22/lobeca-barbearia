@@ -15,6 +15,7 @@ export function Footer({ demo }: { demo: boolean }) {
             <Link href="/#espaco" className="link w-fit decoration-transparent hover:decoration-current">Nosso espaço</Link>
             <Link href="/#contato" className="link w-fit decoration-transparent hover:decoration-current">Onde estamos</Link>
             <Link href="/agendar" className="link w-fit decoration-transparent hover:decoration-current">Agendar</Link>
+            <Link href="/cliente" className="link w-fit decoration-transparent hover:decoration-current">Área do cliente</Link>
             <a href={BRAND.instagramUrl} target="_blank" rel="noopener noreferrer" className="link w-fit decoration-transparent hover:decoration-current">Instagram</a>
             <Link href="/admin" className="link w-fit text-ash decoration-transparent hover:decoration-current">
               {demo ? "Painel (demonstração)" : "Painel"}

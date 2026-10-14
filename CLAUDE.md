@@ -56,6 +56,19 @@ DEMO_BUSINESS_HOURS (não oficial), PHOTO_SLOTS (mapa de fotografias).
   Instagram enviado). Demais fotos: placeholders `PhotoSlot` com caminho esperado em
   `PHOTO_SLOTS` — para trocar, salvar o arquivo e preencher `src`.
 
+## Atualização 2026-10-14 (pedidos do cliente)
+
+Ver HANDOFF.md para o estado completo. Resumo técnico:
+- Vídeos novos em `public/videos/lobeca/` (espaco-tour, barbeiros-1/2, noivo-reel/preparo/cadeira/brinde): recortados de
+  `Downloads/lobecabarbershop (2..6).mp4` com `crop=720:1080:0:40` (tira a marca d'água do rodapé) e só nos trechos sem frases
+  (vídeo 3: 1,6–11,2 s e 23,1–44,9 s; vídeo 4: depois de 8,2 s). Registro em `CLIPS` e `SPACE_TOUR` (src/content/lobeca.ts).
+- Logo em alta: `public/images/lobeca/lobeca-logo.svg` (também `marca/lobeca-mark.svg`); contorno da hero em `logo-path.ts`.
+- Store demo v4 (`lobeca-demo-v4`): agendamentos com `serviceIds[]`, cliente com `planId`/`memberSince`, `expenses`, semente
+  com histórico e 30 dias de movimento avulso.
+- Motion: `src/components/site/motion.tsx` (RevealWords, CountUp, RevealClip, Parallax, FadeUp, Marquee).
+- Lição: em scripts Node via heredoc, `\b` vira backspace no arquivo — conferir com `cat -A`.
+- Máquina com 4 GB de RAM: não rodar navegadores de teste em paralelo; build/tsc com o dev parado.
+
 ## Lições técnicas (valem aqui)
 
 - **Besley + `font-variant-numeric: tabular-nums` desenha o "0" com peso errado** (glyph

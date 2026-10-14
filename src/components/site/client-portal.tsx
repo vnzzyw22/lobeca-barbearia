@@ -115,7 +115,9 @@ function profileOf(state: DemoState, clientId: string) {
   const sinceLast = last ? daysBetween(last.a.startsAt, now) : null;
   const suggested =
     last && avgInterval ? new Date(new Date(last.a.startsAt).getTime() + avgInterval * 86_400_000).toISOString() : null;
-  const firstVisit = rows.length ? rows[rows.length - 1].a.startsAt : client.createdAt;
+  const earliest = rows.length ? rows[rows.length - 1].a.startsAt : client.createdAt;
+  const member = client.memberSince ? `${client.memberSince}T12:00:00-03:00` : null;
+  const firstVisit = member && new Date(member) < new Date(earliest) ? new Date(member).toISOString() : earliest;
   const plan = client.planId ? PLANS.find((p) => p.id === client.planId) ?? null : null;
 
   return { client, rows, upcoming, done, visits, favorite, avgInterval, last, sinceLast, suggested, firstVisit, plan };

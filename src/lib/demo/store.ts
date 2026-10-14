@@ -16,7 +16,7 @@ import type { AppointmentStatus, BusinessHours } from "@/lib/supabase/types";
 // Lobeca existir, o site volta a usar src/app/agendar/actions.ts e o painel
 // real em src/app/admin/(painel)/** (preservados, sem alteração de lógica).
 
-export const DEMO_STORAGE_KEY = "lobeca-demo-v3";
+export const DEMO_STORAGE_KEY = "lobeca-demo-v4";
 
 export interface DemoService {
   id: string;
@@ -187,6 +187,16 @@ const SAMPLE_HISTORY: [number, number, string[]][] = [
   [33, 2, ["corte", "barba"]],
 ];
 
+const WALK_IN_CLIENTS = [
+  "Carlos Eduardo Ramos", "Diego Martins", "Eduardo Pires", "Fábio Teixeira", "Gabriel Souza", "Heitor Batista",
+  "Igor Mendes", "Júlio César Araújo", "Leonardo Dias", "Marcelo Vieira", "Nícolas Freitas", "Otávio Barros",
+];
+
+const WALK_IN_COMBOS: string[][] = [
+  ["corte"], ["corte", "barba"], ["barba"], ["corte"], ["corte", "design-sobrancelhas"], ["barba", "esfoliacao-mascara"],
+  ["corte", "barba"], ["acabamento-pezinho"], ["corte"], ["hidratacao", "corte"],
+];
+
 // Despesas fictícias do mês (só para a prévia do financeiro).
 const SAMPLE_EXPENSES: [string, number, number][] = [
   ["Produtos de barbearia (exemplo)", 860, -18],
@@ -272,6 +282,44 @@ export function createSeedState(now = new Date()): DemoState {
       });
     }
   });
+
+  // Movimento diário dos últimos 30 dias (clientes avulsos fictícios), para o
+  // financeiro e a agenda da demonstração terem volume realista.
+  const walkIns: DemoClient[] = WALK_IN_CLIENTS.map((name, i) => ({
+    id: `cliente-avulso-${i + 1}`,
+    name,
+    whatsapp: `439987654${String(i + 10).padStart(2, "0")}`,
+    notes: "",
+    createdAt,
+    planId: null,
+    memberSince: null,
+  }));
+  clients.push(...walkIns);
+  for (let d = 1; d <= 30; d++) {
+    const date = addDays(today, -d);
+    const weekday = new Date(`${date}T12:00:00${TZ_OFFSET}`).getUTCDay();
+    if (weekday === 0) continue; // domingo: fechado na grade de demonstração
+    const count = 3 + ((d * 7) % 4);
+    for (let k = 0; k < count; k++) {
+      const combo = WALK_IN_COMBOS[(d + k) % WALK_IN_COMBOS.length];
+      const chosen = services.filter((x) => combo.includes(x.id));
+      const minutes = chosen.reduce((t, x) => t + x.durationMinutes, 0);
+      const startsAt = at(date, `${String(9 + k * 2).padStart(2, "0")}:${k % 2 ? "30" : "00"}`);
+      appointments.push({
+        id: `movimento-${d}-${k}`,
+        clientId: walkIns[(d * 3 + k) % walkIns.length].id,
+        serviceIds: combo,
+        staffId: staff[(d + k) % staff.length].id,
+        startsAt,
+        endsAt: new Date(new Date(startsAt).getTime() + minutes * 60_000).toISOString(),
+        status: (d + k) % 13 === 0 ? "no_show" : "completed",
+        notes: "",
+        source: "exemplo",
+        createdAt,
+        price: chosen.reduce((t, x) => t + x.price, 0),
+      });
+    }
+  }
 
   const expenses: DemoExpense[] = SAMPLE_EXPENSES.map(([description, amount, day], i) => ({
     id: `despesa-exemplo-${i + 1}`,
