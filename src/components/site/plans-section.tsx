@@ -50,9 +50,9 @@ function PlanCard({ plan }: { plan: Plan }) {
         )}
 
         <div className="mt-auto pt-10">
-          <p className="flex items-baseline gap-1.5 font-display leading-none font-black tracking-[-0.02em]">
+          <p className="flex items-baseline gap-2 font-display leading-none font-extrabold tracking-[0.01em]">
             <span className="text-[1.3rem] font-bold">R$</span>
-            <CountUp value={plan.monthlyPrice} decimals={2} duration={1.4} className="text-[3.1rem] md:text-[3.5rem]" />
+            <CountUp value={plan.monthlyPrice} decimals={2} duration={1.4} className="text-[2.6rem] sm:text-[3rem] md:text-[3.3rem]" />
           </p>
           <p className="mt-2 text-[0.92rem] text-paper/70">por mês. {PLAN_TERM}.</p>
           <button
