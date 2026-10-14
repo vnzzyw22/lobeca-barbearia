@@ -10,7 +10,11 @@ p.on("console", (m) => m.type() === "error" && errors.push(m.text()));
 await p.goto(`${base}/cliente`, { waitUntil: "load", timeout: 120000 });
 await p.getByRole("button", { name: /assinante/ }).first().click();
 await p.getByRole("heading", { name: /Olá,/ }).waitFor({ timeout: 30000 });
-await p.waitForTimeout(2500);
+await p.waitForTimeout(1500);
+const H = await p.evaluate(() => document.documentElement.scrollHeight);
+for (let y = 0; y < H; y += 400) { await p.evaluate((v) => window.scrollTo(0, v), y); await p.waitForTimeout(120); }
+await p.evaluate(() => window.scrollTo(0, 0)); await p.waitForTimeout(800);
+console.log(JSON.stringify({ overflowPx: await p.evaluate(() => document.documentElement.scrollWidth - window.innerWidth) }));
 await p.screenshot({ path: `${out}/cliente-${w}.png`, fullPage: true });
 await p.goto(`${base}/admin/financeiro`, { waitUntil: "load", timeout: 120000 });
 const entrar = p.getByRole("button", { name: "Entrar na demonstração" });

@@ -231,7 +231,7 @@ function Profile({ state, clientId, onExit }: { state: DemoState; clientId: stri
           <RevealWords as="h1" text={`Olá, ${first}.`} className="display-xl text-[clamp(3rem,7vw,6rem)]" />
           <p className="mt-4 text-smoke">Cliente da Lobeca desde {shortDate(p.firstVisit)}.</p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-[1fr_auto] gap-2 sm:flex sm:flex-wrap">
           <Link href="/agendar" className="btn btn-dark">
             Agendar horário
           </Link>
@@ -249,7 +249,7 @@ function Profile({ state, clientId, onExit }: { state: DemoState; clientId: stri
               whileHover={reduce ? undefined : { rotateX: 4, rotateY: -6 }}
               transition={{ type: "spring", stiffness: 200, damping: 18 }}
               style={{ transformPerspective: 900 }}
-              className="on-dark relative flex aspect-[1.6/1] flex-col justify-between overflow-hidden rounded-[28px] bg-ink p-7 text-paper shadow-[0_30px_60px_rgba(0,0,0,0.25)]"
+              className="on-dark relative flex min-h-[15rem] flex-col justify-between gap-6 overflow-hidden rounded-[28px] bg-ink p-6 text-paper shadow-[0_30px_60px_rgba(0,0,0,0.25)] sm:aspect-[1.6/1] sm:p-7"
             >
               <div aria-hidden="true" className="absolute -top-24 -right-16 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
               <div className="flex items-start justify-between">
@@ -266,7 +266,7 @@ function Profile({ state, clientId, onExit }: { state: DemoState; clientId: stri
                 href={whatsappUrl(`Olá! Sou ${p.client.name}, assinante do plano ${p.plan.name}. Gostaria de tirar uma dúvida sobre os benefícios.`)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn btn-glass w-fit min-h-10 px-5 py-2 text-[0.88rem]"
+                className="btn btn-glass min-h-11 w-full px-5 py-2 text-[0.9rem] sm:w-fit"
               >
                 Dúvidas sobre o plano
               </a>
@@ -306,10 +306,10 @@ function Profile({ state, clientId, onExit }: { state: DemoState; clientId: stri
                     <p className="mt-2 text-[0.9rem] text-smoke">Aguardando a confirmação da casa pelo WhatsApp.</p>
                   )}
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
                   <button
                     type="button"
-                    className="btn btn-dark"
+                    className="btn btn-dark w-full sm:w-auto"
                     onClick={() => downloadIcs(`Lobeca: ${next.services.map((s) => s.name).join(" + ")}`, next.a.startsAt, next.a.endsAt)}
                   >
                     Adicionar à agenda
@@ -318,7 +318,7 @@ function Profile({ state, clientId, onExit }: { state: DemoState; clientId: stri
                     href={whatsappUrl(`Olá! Sou ${p.client.name} e preciso remarcar meu horário de ${longDate(next.a.startsAt)}, às ${time(next.a.startsAt)}.`)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn btn-outline-dark"
+                    className="btn btn-outline-dark w-full sm:w-auto"
                   >
                     Remarcar pelo WhatsApp
                   </a>
@@ -367,7 +367,7 @@ function Profile({ state, clientId, onExit }: { state: DemoState; clientId: stri
                 <p className="mt-2 text-ash">Pelo seu ritmo, o próximo seria por volta de {shortDate(p.suggested)}.</p>
               )}
             </div>
-            <Link href={repeatHref} className="btn btn-glass min-h-14 px-8">
+            <Link href={repeatHref} className="btn btn-glass min-h-14 w-full px-8 md:w-auto">
               Agendar igual
             </Link>
           </div>
@@ -388,14 +388,14 @@ function Profile({ state, clientId, onExit }: { state: DemoState; clientId: stri
                   initial={reduce ? false : { opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: Math.min(i, 8) * 0.04, ease: EASE }}
-                  className="grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 rounded-[var(--radius-md)] border border-ink/10 px-5 py-4 md:grid-cols-[9rem_1fr_10rem_auto]"
+                  className="flex flex-col gap-1.5 rounded-[var(--radius-md)] border border-ink/10 px-5 py-4 md:grid md:grid-cols-[9rem_1fr_10rem_auto] md:items-center md:gap-x-4"
                 >
                   <span className="text-[0.92rem] text-smoke tabular">
                     {shortDate(r.a.startsAt)}, {time(r.a.startsAt)}
                   </span>
                   <span className="order-first font-medium md:order-none">{r.services.map((s) => s.name).join(" + ")}</span>
                   <span className="text-[0.92rem] text-smoke">{r.staff?.name}</span>
-                  <span className="flex items-center justify-end gap-3 text-right">
+                  <span className="mt-1 flex items-center gap-3 md:mt-0 md:justify-end md:text-right">
                     <span className="font-semibold tabular">{money(r.a.price)}</span>
                     <span className="rounded-full bg-ink/6 px-2.5 py-0.5 text-[0.78rem] font-semibold">{STATUS_LABEL[r.a.status]}</span>
                   </span>

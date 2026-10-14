@@ -24,6 +24,11 @@ Leia também `HANDOFF.md` (estado e pendências) e `CLAUDE.md` (técnico). Repo:
 - Projeto criado a partir do sistema Fratelli (só a lógica); identidade nova (Besley + Libre Franklin, preto e branco).
 - Site, agendamento demo honesto, Dia do Noivo, painel de demonstração em `/admin`.
 
+## 2026-10-14 — rodada 4
+- Área do cliente no celular: cartão de membro sem proporção fixa, botões com largura total, histórico empilhado.
+- Botões (`.btn`) podem quebrar linha em telas estreitas (antes vazavam da borda).
+- Assinaturas: números dos preços sem aperto.
+
 ## Pendências
 - Rodar `npx next build` e `npx tsc --noEmit` com o servidor parado (máquina com 4 GB de RAM).
 - Revisão final: `impeccable` (crítica), `web-design-guidelines` (auditoria), `quality-gate-visual`.
